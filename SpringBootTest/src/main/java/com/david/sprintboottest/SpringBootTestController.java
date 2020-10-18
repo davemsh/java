@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,9 +29,6 @@ import com.david.sprintboottest.datajpa.WordRepository;
 public class SpringBootTestController {
 	@Autowired
 	private WordRepository wordRepository;
-
-	@Value("${spring.jpa.properties.hibernate.jdbc.batch_size}")
-	private int batchSize;
 
 	/**
 	 * Searches the word list for the provided search term and returns the number of
@@ -80,7 +76,7 @@ public class SpringBootTestController {
 					"Invalid file type: " + wordListFile.getContentType());
 		} else if (wordListFile.getSize() > (5 * 1024 * 1024)) {
 			// Throw a 400 Bad Request if the file is bigger than 5 MB.
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File size exceeds 8 MB limit.");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File size exceeds 5 MB limit.");
 		} else {
 			try {
 				// Create a set of the existing words to ensure duplicate words aren't added to
