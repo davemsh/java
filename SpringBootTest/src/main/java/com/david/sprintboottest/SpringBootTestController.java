@@ -1,5 +1,9 @@
 package com.david.sprintboottest;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +40,7 @@ public class SpringBootTestController {
 			// Throw a 400 Bad Request if search term was missing.
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No search term was provided.");
 		} else {
-			// Retrieve words that match the search term.
+			// Retrieve words that match the search term and return result.
 			List<Word> wordList = wordRepository.findByWordContaining(searchTerm);
 			return "Found " + wordList.size() + " words matching the search term \"" + searchTerm + "\".";
 		}
@@ -61,10 +65,28 @@ public class SpringBootTestController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Invalid file type: " + wordListFile.getContentType());
 		} else {
-			// Parse the uploaded file to retrieve list of new words TODO
+			// Parse the uploaded file to retrieve list of new words
+			List<Word> wordList = new ArrayList<Word>();
 
-			// Return the list of newly-added words TODO
-			return "Uploading file " + wordListFile.getOriginalFilename();
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(wordListFile.getInputStream()))) {
+				while (reader.ready()) {
+					String wordString = reader.readLine();
+
+					if (StringUtils.isNotBlank(wordString)) {
+						// Create new Word object
+						Word word = new Word(wordString.trim());
+						wordList.add(word);
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error parsing word list file.");
+			}
+
+			// Insert new words, return result.
+			wordRepository.saveAll(wordList);
+			return "Uploaded file " + wordListFile.getOriginalFilename() + ", " + wordList.size()
+					+ " new words added to the word list.";
 		}
 	}
 }

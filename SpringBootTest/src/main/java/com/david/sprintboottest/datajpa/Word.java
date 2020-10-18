@@ -12,7 +12,6 @@ import javax.persistence.Table;
 public class Word {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(nullable = false)
 	private Long id;
 
 	@Column(nullable = false)
